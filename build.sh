@@ -17,3 +17,7 @@ for dir in . gc; do
 
   popd $dir > /dev/null
 done
+
+cd GridWorldCode
+ant compile
+cd ..
