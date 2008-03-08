@@ -1,0 +1,12 @@
+Header:
+0xAAAC
+0x0002 (windows) or 0x0102 (lynx)
+16bits # of levels
+
+Following this come levels (records).
+
+Several levels to a file.
+Each can contain a number of different tags:
+1) map, 32x32 RLE encoded one-byte-per-tile
+3) map title
+6) map passwd
