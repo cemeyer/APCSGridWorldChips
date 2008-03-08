@@ -56,13 +56,6 @@ public class CCLevelSet
     return res;
   }
 
-  private String convertPassword(String pass)
-  {
-    byte[] bs = pass.getBytes();
-    for (int i = 0; i < bs.length; i++) bs[i] ^= 0xC3;
-    return new String(bs);
-  }
-
   private int readInt8() throws IOException
   {
     return file.read();
