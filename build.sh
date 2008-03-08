@@ -12,4 +12,6 @@ if [ "-r" = "$1" ]; then
   pushd GridWorldCode/projects/ >/dev/null
   ./run.sh
   popd >/dev/null
+
+  ./clean.sh
 fi
