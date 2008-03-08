@@ -1,3 +1,3 @@
 #!/bin/bash
 
-javac -cp ~/src/java/gridchallenge/GridWorldCode/gridworld.jar *.java
+javac -cp ~/src/java/gridch/GridWorldCode/gridworld.jar *.java
