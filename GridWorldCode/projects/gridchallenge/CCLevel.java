@@ -1,4 +1,4 @@
-package gc;
+package gridchallenge;
 
 public class CCLevel
 {
