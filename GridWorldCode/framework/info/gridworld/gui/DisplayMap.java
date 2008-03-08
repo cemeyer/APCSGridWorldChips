@@ -83,20 +83,19 @@ public class DisplayMap
      * Finds a display class that knows how to display the given object.
      * @param obj the object to display
      */
-    public Display findDisplayFor(Object cl)
+    public Display findDisplayFor(Object obj)
     {
         // Go up through the class hierarchy for obj and see
         // if there is a display for its class or superclasses.
 
         Class cl = obj.getClass();
 
-        if (cl == Object.class)
+        if (cl == Object.class || cl == Class.class)
             return defaultDisplay;
 
         if (cl.getName().matches("RenderTile$"))
         {
-            // do something special
-            // return display;
+            return (Display)obj;
         }
 
         Display display = map.get(cl);
