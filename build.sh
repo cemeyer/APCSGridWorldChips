@@ -1,8 +1,10 @@
 #!/bin/bash
 
-pushd GridWorldCode > /dev/null
-ant
-popd > /dev/null
+if [ "-framework" = "$1" ]; then
+  pushd GridWorldCode > /dev/null
+  ant
+  popd > /dev/null
+fi
 
 pushd GridWorldCode/projects/gridchallenge/ >/dev/null
 ./build.sh
