@@ -31,7 +31,7 @@ public class CCLevelSet
   
       CCLevel cur = new CCLevel(leveldata);
       if (prev == null) levelOne = cur;
-      else prev.setNext(cur);
+      else prev.setNextLevel(cur);
   
       prev = cur;
     }

@@ -5,18 +5,16 @@ import java.util.HashMap;
 
 public class CCLevel
 {
+  // pointer to next level
   private CCLevel next = null;
-  // timeLimit == 0 indicates no limit
-  private int levelNumber, timeLimit, numChips;
-
   // x, y, layer
   private int[][][] map;
-
+  // used for parsing during ctor; unused afterwards.
   private byte[] leveldata;
   private int idx = 0;
-
+  // information about the level
+  private int levelNumber, timeLimit, numChips;   // timeLimit of 0 is no limit
   private String title, hint, password;
-
   private LinkedList<Point> movingMonsters = new LinkedList<Point>();
   private HashMap<Point, Point> trapControls = new HashMap<Point, Point>();
   private HashMap<Point, Point> cloneControls = new HashMap<Point, Point>();
@@ -28,7 +26,16 @@ public class CCLevel
   public int getTimeLimit() { return timeLimit; }
   public int getChipCount() { return numChips; }
   public CCLevel getNextLevel() { return next; }
+  public String getTitle() { return title; }
+  public String getHint() { return hint; }
+  public String getPassword() { return password; }
+  public Point getTrapForButton(Point button) { return trapControls.get(button); }
+  public Point getCloneForButton(Point button) { return cloneControls.get(button); }
+  
+  // setters
+  public void setNextLevel(CCLevel next) { this.next = next; }
 
+  // ctor
   public CCLevel(byte[] leveldata)
   {
     // setup map data
@@ -43,8 +50,12 @@ public class CCLevel
     this.leveldata = leveldata;
 
     try { parseLevelData(); } catch(ArrayIndexOutOfBoundsException ex) {}
+
+    // free after we're done with it.
+    this.leveldata = null;
   }
 
+  // private methods used during parsing
   private void parseLevelData() throws ArrayIndexOutOfBoundsException
   {
     final boolean debug = false;
@@ -210,15 +221,5 @@ public class CCLevel
       cs[i] ^= 0x99;
     }
     return new String(cs);
-  }
-
-  public CCLevel getNext()
-  {
-    return next;
-  }
-
-  public void setNext(CCLevel next)
-  {
-    this.next = next;
   }
 }
