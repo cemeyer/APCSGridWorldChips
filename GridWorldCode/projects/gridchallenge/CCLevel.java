@@ -5,16 +5,6 @@ import java.util.HashMap;
 
 public class CCLevel
 {
-  class Point
-  {
-    public int x, y;
-    public Point(int x, int y)
-    {
-      this.x = x;
-      this.y = y;
-    }
-  }
-
   private CCLevel next = null;
   // timeLimit == 0 indicates no limit
   private int levelNumber, timeLimit, numChips;
@@ -30,6 +20,14 @@ public class CCLevel
   private LinkedList<Point> movingMonsters = new LinkedList<Point>();
   private HashMap<Point, Point> trapControls = new HashMap<Point, Point>();
   private HashMap<Point, Point> cloneControls = new HashMap<Point, Point>();
+
+  // getters
+  public int getObjectAt(int x, int y, int layer) { return map[x][y][layer]; }
+  public LinkedList<Point> getMonsterLocations() { return movingMonsters; }
+  public int getLevelNumber() { return levelNumber; }
+  public int getTimeLimit() { return timeLimit; }
+  public int getChipCount() { return numChips; }
+  public CCLevel getNextLevel() { return next; }
 
   public CCLevel(byte[] leveldata)
   {

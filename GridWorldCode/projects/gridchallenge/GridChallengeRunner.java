@@ -11,7 +11,8 @@ public class GridChallengeRunner
     try
     {
       CCLevelSet c = new CCLevelSet(
-          "/home/konrad/src/java/gridch/CCLP2/CCLP2.dat");
+          "/home/konrad/src/java/gridch" +
+          "/GridWorldCode/projects/gridchallenge/CCLP2/CCLP2.dat");
       ActorWorld world = new ActorWorld();
 
       for (int i = world.getGrid().getNumRows() - 1; i >= 0; i--)
