@@ -1,6 +1,8 @@
 package gridchallenge;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.net.URL;
 
 public class Tile
 {
@@ -126,10 +128,14 @@ public class Tile
     return tileObjects[tile];
   }
 
-  public static Image getImageForTile(int tile)
+  public static BufferedImage getImageForTile(int tile)
   {
-    // create an Image somehow
-    String name = getNameForTile(tile);
-    return null;
+    BufferedImage res = null;
+    try
+    {
+      res = ImageIO.read(new URL("/home/konrad/src/java/gridch/GridWorldCode/projects/gridchallenge/" +
+            getNameForTile(tile) + ".png"));
+    } catch (Exception x) {}
+    return res;
   }
 }

@@ -11,6 +11,18 @@ public class CCLevelSet
 
   private CCLevel levelOne;
 
+  public CCLevel getLevel(int num)
+  {
+    if (num > levels || num < 1) return null;
+    CCLevel cur = levelOne;
+    for (int curCount = 1;;)
+    {
+      if (curCount >= num) return cur;
+      cur = cur.getNextLevel();
+      curCount++;
+    }
+  }
+
   public CCLevelSet(String filename) throws IOException
   {
     try { file = new FileInputStream(filename); }
