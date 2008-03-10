@@ -142,6 +142,7 @@ public class Tile
     catch (Exception x)
     {
       //System.out.println(x.getClass().getName() + ": " + x.getMessage());
+      System.out.println("Need: " + getNameForTile(tile));
     }
     return res;
   }

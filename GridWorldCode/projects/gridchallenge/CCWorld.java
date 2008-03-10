@@ -70,8 +70,6 @@ public class CCWorld extends World<Actor>
         // do nothing
         break;
     }
-    if (action != Dir.NONE)
-      System.out.println("Chip is at (" + chip.x + ", " + chip.y + ")");
     action = Dir.NONE;
     // TODO: move all monsters that need to move...
     super.step();
