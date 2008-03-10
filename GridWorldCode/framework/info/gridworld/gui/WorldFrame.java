@@ -74,8 +74,8 @@ import java.io.StringWriter;
  */
 public class WorldFrame<T> extends JFrame
 {
-    private GUIController<T> control;
-    private GridPanel display;
+    public GUIController<T> control;
+    public GridPanel display;
     private JTextArea messageArea;
     private ArrayList<JMenuItem> menuItemsDisabledDuringRun;
     private World<T> world;

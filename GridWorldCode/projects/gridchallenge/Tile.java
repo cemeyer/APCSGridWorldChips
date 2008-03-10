@@ -131,10 +131,15 @@ public class Tile
   public static BufferedImage getImageForTile(int tile)
   {
     BufferedImage res = null;
+    String path = "/home/konrad/src/java/gridch/gridworldcode/projects/gridchallenge/images/" +
+      getNameForTile(tile) + ".png";
+
+    System.out.println(path);
+
     try
     {
-      res = ImageIO.read(new URL("/home/konrad/src/java/gridch/GridWorldCode/projects/gridchallenge/" +
-            getNameForTile(tile) + ".png"));
+      URL url = new URL(path);
+      res = ImageIO.read(url);
     } catch (Exception x) {}
     return res;
   }

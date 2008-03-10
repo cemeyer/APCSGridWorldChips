@@ -93,11 +93,6 @@ public class DisplayMap
         if (cl == Object.class || cl == Class.class)
             return defaultDisplay;
 
-        if (cl.getName().matches("RenderTile$"))
-        {
-            return (Display)obj;
-        }
-
         Display display = map.get(cl);
         if (display != null)
             return display;

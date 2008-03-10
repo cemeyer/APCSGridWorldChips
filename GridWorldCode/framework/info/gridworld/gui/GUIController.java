@@ -53,8 +53,8 @@ public class GUIController<T>
             + (MAX_DELAY_MSECS - MIN_DELAY_MSECS) / 2;
 
     private Timer timer;
-    private JButton stepButton, runButton, stopButton;
-    private JComponent controlPanel;
+    public JButton stepButton, runButton, stopButton;
+    public JComponent controlPanel;
     private GridPanel display;
     private WorldFrame<T> parentFrame;
     private int numStepsToRun, numStepsSoFar;
