@@ -1,0 +1,138 @@
+<html>
+  <head>
+    <title>CCLevel class</title>
+    <style type="text/css">
+      table
+      {
+        border: 1px solid black;
+        border-collapse: collapse;
+        border-spacing: 0px;
+      }
+
+      td
+      {
+        border-bottom: 1px solid black;
+        border-left: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>gridchallenge</h3>
+    <h1>Class CCLevel</h1>
+    <p>
+      java.lang.Object --&gt; <b>gridchallenge.CCLevel</b>
+    </p>
+    <hr />
+    <p>
+      <code>public class <b>CCLevel</b></code>
+    </p>
+    <p>
+      The <code>CCLevel</code> class represents Chip's Challenge levels.
+      You probably don't want to actually use this class, but instead use
+      <a href="CCLevelSet.html">CCLevelSet</a>.
+    </p>
+    <p>
+      <table cellspacing="0">
+        <tr><td colspan="2">Constructor(s)</td></tr>
+        <tr>
+          <td>Definition:</td>
+          <td>Notes:</td>
+        </tr>
+        <tr>
+          <td><code>public CCLevel(byte[] leveldata)</code></td>
+          <td>
+            Here <code>leveldata</code> is an array of all the bytes in
+            the levelset file that are part of this level.
+          </td>
+        </tr>
+      </table>
+    </p>
+    <p>
+      <table cellspacing="0">
+        <tr><td colspan="2">Getter(s)</td></tr>
+        <tr>
+          <td>Definition:</td>
+          <td>Notes:</td>
+        </tr>
+        <tr>
+          <td><code>public int getObjectAt(int x, int y, int layer)</code></td>
+          <td>
+            Return the integer object id of the object residing at the
+            desired location.
+          </td>
+        </tr>
+        <tr>
+          <td><code>public LinkedList&lt;<a href="Point.html">Point</a>&gt; getMonsterLocations()</code></td>
+          <td>Returns a linked list of the monsters that move on this level.</td>
+        </tr>
+        <tr>
+          <td><code>public int getLevelNumber()</code></td>
+          <td>Returns which level this is.</td>
+        </tr>
+        <tr>
+          <td><code>public int getTimeLimit()</code></td>
+          <td>Returns how many seconds the player has for this level.</td>
+        </tr>
+        <tr>
+          <td><code>public int getChipCount()</code></td>
+          <td>
+            Returns the number of chips needed to pass the exit lock
+            on this level
+          </td>
+        </tr>
+        <tr>
+          <td><code>public CCLevel getNextLevel()</code></td>
+          <td>
+            Returns the next level in this levelset.
+          </td>
+        </tr>
+        <tr>
+          <td><code>public String getTitle()</code></td>
+          <td>
+            Returns the title of the level.
+          </td>
+        </tr>
+        <tr>
+          <td><code>public String getHint()</code></td>
+          <td>
+            Returns the hint for this level.
+          </td>
+        </tr>
+        <tr>
+          <td><code>public String getPassword()</code></td>
+          <td>
+            Returns this level's password.
+          </td>
+        </tr>
+        <tr>
+          <td><code>public Point getTrapForButton(Point button)</code></td>
+          <td>
+            Returns the trap associated with this button.
+          </td>
+        </tr>
+        <tr>
+          <td><code>public Point getCloneForButton(Point button)</code></td>
+          <td>
+            Returns the cloning machine associated with this button.
+          </td>
+        </tr>
+      </table>
+    </p>
+    <p>
+      <table cellspacing="0">
+        <tr><td colspan="2">Setter(s)</td></tr>
+        <tr>
+          <td>Definition:</td>
+          <td>Notes:</td>
+        </tr>
+        <tr>
+          <td><code>public void setNextLevel(CCLevel next)</code></td>
+          <td>
+            Used by CCLevelSet only. You *could* use this to change
+            the order of levels or omit them, but shouldn't.
+          </td>
+        </tr>
+      </table>
+    </p>
+  </body>
+</html>
