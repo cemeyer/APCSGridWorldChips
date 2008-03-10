@@ -52,7 +52,7 @@ public class GUIController<T>
     private static final int INITIAL_DELAY = MIN_DELAY_MSECS
             + (MAX_DELAY_MSECS - MIN_DELAY_MSECS) / 2;
 
-    private Timer timer;
+    public Timer timer;
     public JButton stepButton, runButton, stopButton;
     public JComponent controlPanel;
     private GridPanel display;
@@ -220,7 +220,7 @@ public class GUIController<T>
         controlPanel.add(Box.createRigidArea(spacer));
         controlPanel.add(new JLabel(resources.getString("slider.gui.slow")));
         JSlider speedSlider = new JSlider(MIN_DELAY_MSECS, MAX_DELAY_MSECS,
-                INITIAL_DELAY);
+                20);
         speedSlider.setInverted(true);
         speedSlider.setPreferredSize(new Dimension(100, speedSlider
                 .getPreferredSize().height));

@@ -5,12 +5,19 @@ import info.gridworld.grid.Location;
 import info.gridworld.grid.BoundedGrid;
 import info.gridworld.grid.Grid;
 import info.gridworld.actor.Actor;
+import info.gridworld.gui.WorldFrame;
+
+import java.util.LinkedList;
 
 public class CCWorld extends World<Actor>
 {
-  private Point chip = new Point(15, 15);
+  private Point chip;
   private Dir action = Dir.NONE;
   private CCLevel level;
+  private int tickCounter = 0;
+
+  private boolean gotoNextLevel = false;
+  private int levelTarget = 0;
 
   public CCLevel getLevel()
   {
@@ -38,6 +45,30 @@ public class CCWorld extends World<Actor>
         (new RenderTile(this)).putSelfInGrid(grid, new Location(i, j));
 
     this.level = level;
+    this.frame = new WorldFrame<Actor>(this);
+    this.frame.setVisible(true);
+    ((WorldFrame)this.frame).display.cellSize =
+      (((WorldFrame)this.frame).display.cellSize * 10) / 9;
+    ((WorldFrame)this.frame).control.run();
+    ((WorldFrame)this.frame).control.timer.setDelay(20);
+
+    //this.frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+    boolean breakFree = false;
+    for (int i = 0; i < 32; i++)
+    {
+      for (int j = 0; j < 32; j++)
+      {
+        String tile = Tile.getNameForTile(level.getObjectAt(i, j, 0));
+        if (tile.length() == 5 && tile.startsWith("Chip"))
+        {
+          chip = new Point(i, j);
+          breakFree = true;
+          break;
+        }
+      }
+      if (breakFree) break;
+    }
   }
 
   public void step()
@@ -52,26 +83,43 @@ public class CCWorld extends World<Actor>
     {
       case UP:
         if (chip.y > 0)
-          chip = new Point(chip.x, chip.y - 1);
+          chip = level.moveChip(chip, new Point(chip.x, chip.y - 1));
         break;
       case RIGHT:
         if (chip.x < 31)
-          chip = new Point(chip.x + 1, chip.y);
+          chip = level.moveChip(chip, new Point(chip.x + 1, chip.y));
         break;
       case LEFT:
         if (chip.x > 0)
-          chip = new Point(chip.x - 1, chip.y);
+          chip = level.moveChip(chip, new Point(chip.x - 1, chip.y));
         break;
       case DOWN:
         if (chip.y < 31)
-          chip = new Point(chip.x, chip.y + 1);
+          chip = level.moveChip(chip, new Point(chip.x, chip.y + 1));
         break;
       case NONE:
         // do nothing
         break;
     }
     action = Dir.NONE;
-    // TODO: move all monsters that need to move...
+
+    tickCounter++;
+    if (tickCounter >= 15)
+    {
+      LinkedList<Point> monsters = level.getMonsterLocations();
+      LinkedList<Point> newmonsters = new LinkedList<Point>();
+      for (Point m : monsters)
+      {
+        int realmonster = level.getObjectAt(m.x, m.y, 0);
+        int genericMonster = realmonster & 0xfc;
+
+        Point n = level.moveMonster(m, realmonster);
+        if (n != null) newmonsters.add(n);
+      }
+      level.setMonsterLocations(newmonsters);
+      tickCounter = 0;
+    }
+
     super.step();
   }
 
@@ -86,6 +134,18 @@ public class CCWorld extends World<Actor>
       action = Dir.UP;
     else if (desc.equals("DOWN"))
       action = Dir.DOWN;
+    else if (desc.equals("ctrl alt G"))
+    {
+      gotoNextLevel = true;
+      levelTarget = 0;
+    }
+    else if (desc.matches("^\\d$") && gotoNextLevel)
+      levelTarget = (levelTarget * 10) + Integer.valueOf(desc);
+    else if (desc.equals("ENTER"))
+    {
+      GridChallengeRunner.startLevel(levelTarget);
+      this.frame.dispose();
+    }
     else
     {
       System.out.println(desc);

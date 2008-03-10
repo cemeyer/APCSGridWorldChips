@@ -22,7 +22,7 @@ public class RenderTileDisplay extends AbstractDisplay
     Point chip = world.getChip();
     CCLevel level = world.getLevel();
 
-    int tile = world.getLevel().getObjectAt(chip.x + loc.getCol() - 5, chip.y + loc.getRow() - 5, 0);
+    int tile = world.getLevel().getObjectAt(chip.x + loc.getCol() - 4, chip.y + loc.getRow() - 4, 0);
     BufferedImage bi = Tile.getImageForTile(tile);
     g2.drawImage(bi, rect.x, rect.y, rect.width, rect.height, null);
   }

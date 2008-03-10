@@ -20,7 +20,19 @@ public class CCLevel
   private HashMap<Point, Point> cloneControls = new HashMap<Point, Point>();
 
   // getters
-  public int getObjectAt(int x, int y, int layer) { return map[x][y][layer]; }
+  public int getObjectAt(int x, int y, int layer)
+  {
+    int res;
+    try
+    {
+      res = map[x][y][layer];
+    }
+    catch (java.lang.ArrayIndexOutOfBoundsException ex)
+    {
+      res = 1; // wall
+    }
+    return res;
+  }
   public LinkedList<Point> getMonsterLocations() { return movingMonsters; }
   public int getLevelNumber() { return levelNumber; }
   public int getTimeLimit() { return timeLimit; }
@@ -34,6 +46,7 @@ public class CCLevel
   
   // setters
   public void setNextLevel(CCLevel next) { this.next = next; }
+  public void setMonsterLocations(LinkedList<Point> m) { movingMonsters = m; }
 
   // ctor
   public CCLevel(byte[] leveldata)
@@ -53,6 +66,65 @@ public class CCLevel
 
     // free after we're done with it.
     this.leveldata = null;
+  }
+
+  public Point moveChip(Point a, Point b)
+  {
+    if (map[b.x][b.y][0] == 0)
+    {
+      int value = map[a.x][a.y][0];
+
+      map[a.x][a.y][0] = 0;
+
+      int dx = b.x - a.x;
+      int dy = b.y - a.y;
+
+      if (dx > 0)
+        value = 0x6f;
+      else if (dx < 0)
+        value = 0x6d;
+      else if (dy > 0)
+        value = 0x6e;
+      else if (dy < 0)
+        value = 0x6c;
+
+      map[b.x][b.y][0] = value;
+      return b;
+    }
+    return a;
+  }
+
+  public Point moveMonster(Point oldpos, int id)
+  {
+    Point newpos = oldpos;
+
+    switch (id & 0x03)
+    {
+      case 0: // N
+        newpos = new Point(oldpos.x, oldpos.y - 1);
+        break;
+      case 1: // W
+        newpos = new Point(oldpos.x - 1, oldpos.y);
+        break;
+      case 2: // S
+        newpos = new Point(oldpos.x, oldpos.y + 1);
+        break;
+      case 3: // E
+        newpos = new Point(oldpos.x + 1, oldpos.y);
+        break;
+    }
+
+    if (map[newpos.x][newpos.y][0] != 0)
+    {
+      map[oldpos.x][oldpos.y][0] = id ^ 0x02; // 180 degree turn
+      return oldpos;
+    }
+    else
+    {
+      map[oldpos.x][oldpos.y][0] = 0;
+      map[newpos.x][newpos.y][0] = id;
+      return newpos;
+    }
   }
 
   // private methods used during parsing
