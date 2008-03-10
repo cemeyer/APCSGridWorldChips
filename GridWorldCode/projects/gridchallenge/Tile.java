@@ -2,7 +2,8 @@ package gridchallenge;
 
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import java.net.URL;
+import java.io.File;
+
 
 public class Tile
 {
@@ -131,16 +132,17 @@ public class Tile
   public static BufferedImage getImageForTile(int tile)
   {
     BufferedImage res = null;
-    String path = "/home/konrad/src/java/gridch/gridworldcode/projects/gridchallenge/images/" +
+    String path = "/home/konrad/src/java/gridch/GridWorldCode/projects/gridchallenge/images/" +
       getNameForTile(tile) + ".png";
-
-    System.out.println(path);
 
     try
     {
-      URL url = new URL(path);
-      res = ImageIO.read(url);
-    } catch (Exception x) {}
+      res = ImageIO.read(new File(path));
+    }
+    catch (Exception x)
+    {
+      //System.out.println(x.getClass().getName() + ": " + x.getMessage());
+    }
     return res;
   }
 }
