@@ -82,7 +82,7 @@
           </td>
         </tr>
         <tr>
-          <td><code>public CCLevel getNextLevel()</code></td>
+          <td><code>public <a href="CCLevel.html">CCLevel</a> getNextLevel()</code></td>
           <td>
             Returns the next level in this levelset.
           </td>
@@ -106,13 +106,13 @@
           </td>
         </tr>
         <tr>
-          <td><code>public Point getTrapForButton(Point button)</code></td>
+          <td><code>public <a href="Point.html">Point</a> getTrapForButton(<a href="Point.html">Point</a> button)</code></td>
           <td>
             Returns the trap associated with this button.
           </td>
         </tr>
         <tr>
-          <td><code>public Point getCloneForButton(Point button)</code></td>
+          <td><code>public <a href="Point.html">Point</a> getCloneForButton(<a href="Point.html">Point</a> button)</code></td>
           <td>
             Returns the cloning machine associated with this button.
           </td>
@@ -127,10 +127,37 @@
           <td>Notes:</td>
         </tr>
         <tr>
-          <td><code>public void setNextLevel(CCLevel next)</code></td>
+          <td><code>public void setNextLevel(<a href="CCLevel.html">CCLevel</a> next)</code></td>
           <td>
-            Used by CCLevelSet only. You *could* use this to change
+            Used by <a href="CCLevelSet.html">CCLevelSet</a> only. You *could* use this to change
             the order of levels or omit them, but shouldn't.
+          </td>
+        </tr>
+        <tr>
+          <td><code>public void setMonsterLocations(LinkedList&lt;<a href="Point.html">Point</a>&gt; m)</code></td>
+          <td>
+            Used by <a href="CCWorld.html">CCWorld</a>.
+          </td>
+        </tr>
+      </table>
+    </p>
+    <p>
+      <table cellspacing="0">
+        <tr><td colspan="2">Other</td></tr>
+        <tr>
+          <td>Definition:</td>
+          <td>Notes:</td>
+        </tr>
+        <tr>
+          <td><code>public <a href="Point.html">Point</a> moveChip(<a href="Point.html">Point</a> a, <a href="Point.html">Point</a> b)</code></td>
+          <td>
+            Used by <a href="CCWorld.html">CCWorld</a>.
+          </td>
+        </tr>
+        <tr>
+          <td><code>public <a href="Point.html">Point</a> moveMonster(<a href="Point.html">Point</a> oldpos, int id)</code></td>
+          <td>
+            Used by <a href="CCWorld.html">CCWorld</a>.
           </td>
         </tr>
       </table>
