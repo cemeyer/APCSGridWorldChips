@@ -21,6 +21,7 @@ public class RenderTileDisplay extends AbstractDisplay
     Location loc = r.getLocation();
     Point chip = world.getChip();
     CCLevel level = world.getLevel();
+    if (r == null || world == null || loc == null || chip == null || level == null) return;
 
     int tiletop = world.getLevel().getObjectAt(chip.x + loc.getCol() - 4, chip.y + loc.getRow() - 4, 0);
     int tilebot = world.getLevel().getObjectAt(chip.x + loc.getCol() - 4, chip.y + loc.getRow() - 4, 1);
