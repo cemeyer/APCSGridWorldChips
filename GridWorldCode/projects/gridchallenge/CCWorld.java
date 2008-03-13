@@ -8,10 +8,12 @@ import info.gridworld.actor.Actor;
 import info.gridworld.gui.WorldFrame;
 
 import java.util.LinkedList;
+import javax.swing.JOptionPane;
 
 public class CCWorld extends World<Actor>
 {
-  private Point chip;
+  private CCPlayer player;
+
   private Dir action = Dir.NONE;
   private CCLevel level;
   private int tickCounter = 0;
@@ -31,12 +33,15 @@ public class CCWorld extends World<Actor>
 
   public Point getChip()
   {
-    return chip;
+    if (player == null) return null;
+    return player.chip;
   }
 
   public CCWorld(CCLevel level)
   {
     super(new BoundedGrid<Actor>(9, 9));
+
+    level.showHint();
 
     Grid<Actor> grid = getGrid();
 
@@ -62,7 +67,7 @@ public class CCWorld extends World<Actor>
         String tile = Tile.getNameForTile(level.getObjectAt(i, j, 0));
         if (tile.length() == 5 && tile.startsWith("Chip"))
         {
-          chip = new Point(i, j);
+          player = new CCPlayer(new Point(i, j));
           breakFree = true;
           break;
         }
@@ -77,25 +82,25 @@ public class CCWorld extends World<Actor>
     for (Location loc : grid.getOccupiedLocations())
     {
       Actor a = grid.get(loc);
-      a.act();
+      a.act();  // paint yourselves.
     }
     switch(action)
     {
       case UP:
-        if (chip.y > 0)
-          chip = level.moveChip(chip, new Point(chip.x, chip.y - 1));
+        if (player.chip.y > 0)
+          level.moveChip(player, new Point(player.chip.x, player.chip.y - 1));
         break;
       case RIGHT:
-        if (chip.x < 31)
-          chip = level.moveChip(chip, new Point(chip.x + 1, chip.y));
+        if (player.chip.x < 31)
+          level.moveChip(player, new Point(player.chip.x + 1, player.chip.y));
         break;
       case LEFT:
-        if (chip.x > 0)
-          chip = level.moveChip(chip, new Point(chip.x - 1, chip.y));
+        if (player.chip.x > 0)
+          level.moveChip(player, new Point(player.chip.x - 1, player.chip.y));
         break;
       case DOWN:
-        if (chip.y < 31)
-          chip = level.moveChip(chip, new Point(chip.x, chip.y + 1));
+        if (player.chip.y < 31)
+          level.moveChip(player, new Point(player.chip.x, player.chip.y + 1));
         break;
       case NONE:
         // do nothing

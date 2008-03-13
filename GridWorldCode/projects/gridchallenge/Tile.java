@@ -9,7 +9,7 @@ public class Tile
 {
   private static String[] tileObjects = new String[]
   {
-    "Space",
+    "Space",        // 0x00
     "Wall",
     "Chip",
     "Water",
@@ -17,7 +17,7 @@ public class Tile
     "InvisWallInv",
     "BlockedNorth",
     "BlockedWest",
-    "BlockedSouth",
+    "BlockedSouth", // 0x08
     "BlockedEast",
     "MovableDirt",
     "Dirt",
@@ -25,7 +25,7 @@ public class Tile
     "ForceSouth",
     "CloningNorth",
     "CloningWest",
-    "CloningSouth",
+    "CloningSouth", // 0x10
     "CloningEast",
     "ForceNorth",
     "ForceEast",
@@ -33,7 +33,7 @@ public class Tile
     "Exit",
     "BlueDoor",
     "RedDoor",
-    "GreenDoor",
+    "GreenDoor",    // 0x18
     "YellowDoor",
     "SouthEastIce",
     "SouthWestIce",
@@ -41,7 +41,7 @@ public class Tile
     "NorthEastIce",
     "BlueBlockTile",
     "BlueBlockWall",
-    null,
+    null,           // 0x20
     "Thief",
     "Socket",
     "GreenButton",
@@ -49,7 +49,7 @@ public class Tile
     "SwitchBlockCl",
     "SwitchBlockOp",
     "BrownButton",
-    "BlueButton",
+    "BlueButton",   // 0x28
     "Teleport",
     "Bomb",
     "Trap",
@@ -57,7 +57,7 @@ public class Tile
     "Gravel",
     "PassOnce",
     "Hint",
-    "BlockedSE",
+    "BlockedSE",    // 0x30
     "CloneMachine",
     "ForceAllDir",
     "DrowningChip",
@@ -65,7 +65,7 @@ public class Tile
     "BurnedChip2",
     null,
     null,
-    null,
+    null,           // 0x38
     "ChipExit",
     "ExitEndGame",
     "ExitEndGame2",
@@ -73,7 +73,7 @@ public class Tile
     "ChipSwimmingW",
     "ChipSwimmingS",
     "ChipSwimmingE",
-    "BugN",
+    "BugN",         // 0x40
     "BugW",
     "BugS",
     "BugE",
@@ -81,7 +81,7 @@ public class Tile
     "FireBugW",
     "FireBugS",
     "FireBugE",
-    "PinkBallN",
+    "PinkBallN",    // 0x48
     "PinkBallW",
     "PinkBallS",
     "PinkBallE",
@@ -89,7 +89,7 @@ public class Tile
     "TankW",
     "TankS",
     "TankE",
-    "GhostN",
+    "GhostN",       // 0x50
     "GhostW",
     "GhostS",
     "GhostE",
@@ -97,7 +97,7 @@ public class Tile
     "FrogW",
     "FrogS",
     "FrogE",
-    "DumbbellN",
+    "DumbbellN",    // 0x58
     "DumbbellW",
     "DumbbellS",
     "DumbbellE",
@@ -105,7 +105,7 @@ public class Tile
     "BlobW",
     "BlobS",
     "BlobE",
-    "CentipedeN",
+    "CentipedeN",   // 0x60
     "CentipedeW",
     "CentipedeS",
     "CentipedeE",
@@ -113,14 +113,14 @@ public class Tile
     "RedKey",
     "GreenKey",
     "YellowKey",
-    "Flippers",
+    "Flippers",     // 0x68
     "FireBoots",
     "IceSkates",
     "SuctionBoots",
     "ChipN",
     "ChipW",
     "ChipS",
-    "ChipE",
+    "ChipE",        // 0x6f
   };
 
   public static String getNameForTile(int tile)

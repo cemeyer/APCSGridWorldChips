@@ -3,6 +3,8 @@ package gridchallenge;
 import java.util.LinkedList;
 import java.util.HashMap;
 
+import javax.swing.JOptionPane;
+
 public class CCLevel
 {
   // pointer to next level
@@ -48,6 +50,15 @@ public class CCLevel
   public void setNextLevel(CCLevel next) { this.next = next; }
   public void setMonsterLocations(LinkedList<Point> m) { movingMonsters = m; }
 
+  public void showHint()
+  {
+    JOptionPane.showMessageDialog(null,
+        "This level requires " + getChipCount() + " chips " +
+        "to exit.\n\nPassword: " + getPassword(),
+        "Level " + getLevelNumber() + " - \"" + getTitle() + "\"",
+        JOptionPane.INFORMATION_MESSAGE);
+  }
+
   // ctor
   public CCLevel(byte[] leveldata)
   {
@@ -68,30 +79,180 @@ public class CCLevel
     this.leveldata = null;
   }
 
-  public Point moveChip(Point a, Point b)
+  public void moveChip(CCPlayer old, Point newp)
   {
-    if (map[b.x][b.y][0] == 0)
+    int[] oldchiploc = map[old.chip.x][old.chip.y];
+    int[] newploc = map[newp.x][newp.y];
+    int dx = newp.x - old.chip.x;
+    int dy = newp.y - old.chip.y;
+
+    if (newploc[0] == 0)
     {
-      int value = map[a.x][a.y][0];
+      // remove ourself from old square
+      oldchiploc[0] = 0;
 
-      map[a.x][a.y][0] = 0;
+      // if the old square had something, restore it up
+      if (oldchiploc[1] != 0)
+      {
+        oldchiploc[0] = oldchiploc[1];
+        oldchiploc[1] = 0;
+      }
 
-      int dx = b.x - a.x;
-      int dy = b.y - a.y;
+      int value = 0x6c | direction(newp.x - old.chip.x,
+          newp.y - old.chip.y);
 
-      if (dx > 0)
-        value = 0x6f;
-      else if (dx < 0)
-        value = 0x6d;
-      else if (dy > 0)
-        value = 0x6e;
-      else if (dy < 0)
-        value = 0x6c;
-
-      map[b.x][b.y][0] = value;
-      return b;
+      // put ourself into the new square
+      newploc[0] = value;
+      old.chip = newp;
     }
-    return a;
+    else if (newploc[1] == 0)
+    {
+      int oldtile = newploc[0];
+
+      if (oldtile == 0x01 || oldtile == 0x05 ||
+          (oldtile == 0x22 && (old.numChips < getChipCount())))
+      {
+        // wall / invis wall / socket
+        return;
+      }
+      if (oldtile > 0x15 && oldtile < 0x20)
+      {
+        // color doors
+        switch (oldtile - 0x16)
+        {
+          case 0:
+            // blue
+            if (old.numBlue > 0)
+            {
+              newploc[0] = 0;
+              old.numBlue -= 1;
+            }
+            else return;
+            break;
+          case 1:
+            // red
+            if (old.numRed > 0)
+            {
+              newploc[0] = 0;
+              old.numRed -= 1;
+            }
+            else return;
+            break;
+          case 2:
+            // green
+            if (old.numGreen > 0)
+            {
+              newploc[0] = 0;
+              // don't decrement this; turns out green keys last forever
+//            old.numGreen -= 1;
+            }
+            else return;
+            break;
+          case 3:
+            // yellow
+            if (old.numYellow > 0)
+            {
+              newploc[0] = 0;
+              old.numYellow -= 1;
+            }
+            else return;
+            break;
+        }
+      }
+      if (oldtile == 0x0a)
+      {
+        // dirt
+        int[] futuredirt = map[newp.x + dx][newp.y + dy];
+        if (!(futuredirt[0] == 0x00 || futuredirt[0] == 0x03 ||
+              futuredirt[0] == 0x0b))
+          return;
+      }
+
+      // remove ourself from old square
+      oldchiploc[0] = 0;
+
+      // if the old square had something, restore it up
+      if (oldchiploc[1] != 0)
+      {
+        oldchiploc[0] = oldchiploc[1];
+        oldchiploc[1] = 0;
+      }
+
+      int value = 0x6c | direction(dx, dy);
+      
+      // what have we stepped on?
+      switch (oldtile)
+      {
+        case 0x64:
+          // blue key
+          old.numBlue += 1;
+          break;
+        case 0x65:
+          // red key
+          old.numRed += 1;
+          break;
+        case 0x66:
+          // green key
+          old.numGreen += 1;
+          break;
+        case 0x67:
+          // yellow key
+          old.numYellow += 1;
+          break;
+        case 0x02:
+          // chip
+          old.numChips += 1;
+          break;
+        case 0x2f:
+          // hint
+          showHint();
+          newploc[1] = newploc[0];
+          break;
+        case 0x0a:
+          // movable dirt
+          int[] newloc = map[newp.x + dx][newp.y + dy];
+          if (newloc[0] == 0x00)
+          {
+            newloc[0] = 0x0a;
+          }
+          else if (newloc[0] == 0x0b)
+          {
+            newloc[0] = 0x0a;
+            newloc[1] = 0x0b;
+          }
+          else if (newloc[0] == 0x03)
+          {
+            newloc[0] = 0x0b;
+          }
+          break;
+        case 0x04:
+          // fire
+          break;
+        default:
+          newploc[1] = newploc[0];
+          break;
+      }
+
+      // put ourself into the new square
+      newploc[0] = value;
+      old.chip = newp;
+    }
+  }
+
+  public int direction(int dx, int dy)
+  {
+    int value = 0;
+
+    if (dx > 0)
+      value = 3;
+    else if (dx < 0)
+      value = 1;
+    else if (dy > 0)
+      value = 2;
+    else if (dy < 0)
+      value = 0;
+
+    return value;
   }
 
   public Point moveMonster(Point oldpos, int id)

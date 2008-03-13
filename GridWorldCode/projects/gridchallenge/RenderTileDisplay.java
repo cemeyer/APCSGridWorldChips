@@ -33,7 +33,7 @@ public class RenderTileDisplay extends AbstractDisplay
     
     // draw from bottom to top; use transparency!
     g2.drawImage(spc, rect.x, rect.y, rect.width, rect.height, null);
-    g2.drawImage(bib, rect.x, rect.y, rect.width, rect.height, null);
-    g2.drawImage(bit, rect.x, rect.y, rect.width, rect.height, null);
+    if (tilebot != 0) g2.drawImage(bib, rect.x, rect.y, rect.width, rect.height, null);
+    if (tiletop != 0) g2.drawImage(bit, rect.x, rect.y, rect.width, rect.height, null);
   }
 }
