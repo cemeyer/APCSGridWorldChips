@@ -3,8 +3,6 @@ package gridchallenge;
 import java.util.LinkedList;
 import java.util.HashMap;
 
-import javax.swing.JOptionPane;
-
 public class CCLevel
 {
   // pointer to next level
@@ -50,15 +48,6 @@ public class CCLevel
   public void setNextLevel(CCLevel next) { this.next = next; }
   public void setMonsterLocations(LinkedList<Point> m) { movingMonsters = m; }
 
-  public void showHint()
-  {
-    JOptionPane.showMessageDialog(null,
-        "This level requires " + getChipCount() + " chips " +
-        "to exit.\n\nPassword: " + getPassword(),
-        "Level " + getLevelNumber() + " - \"" + getTitle() + "\"",
-        JOptionPane.INFORMATION_MESSAGE);
-  }
-
   // ctor
   public CCLevel(byte[] leveldata)
   {
@@ -86,6 +75,38 @@ public class CCLevel
     int dx = newp.x - old.chip.x;
     int dy = newp.y - old.chip.y;
 
+    if (newploc[0] == 0x0a)
+    {
+      // dirt
+      int[] futuredirt = map[newp.x + dx][newp.y + dy];
+      if (!(futuredirt[0] == 0x00 || futuredirt[0] == 0x03 ||
+            futuredirt[0] == 0x0b))
+      {
+        System.out.println("can't push dirt into a wall");
+        return;
+      }
+
+      // dirt can be moved
+      int[] newloc = futuredirt;
+      if (newloc[0] == 0x00)  // if we're pushing onto blank tile
+      {
+        newloc[0] = 0x0a;
+      }
+      else if (newloc[0] == 0x0b)   // onto dirt
+      {
+        // turns out movabledirt + dirt = dirt
+        // so do nothing.
+        //newloc[0] = 0x0a;
+        //newloc[1] = 0x0b;
+      }
+      else if (newloc[0] == 0x03)   // onto water
+      {
+        newloc[0] = 0x0b;
+      }
+      newploc[0] = newploc[1];
+      newploc[1] = 0;
+    }
+
     if (newploc[0] == 0)
     {
       // remove ourself from old square
@@ -110,9 +131,11 @@ public class CCLevel
       int oldtile = newploc[0];
 
       if (oldtile == 0x01 || oldtile == 0x05 ||
-          (oldtile == 0x22 && (old.numChips < getChipCount())))
+          (oldtile == 0x22 &&
+           ((old.numChips < getChipCount()) && !old.world.godMode))
+          || oldtile == 0x25)
       {
-        // wall / invis wall / socket
+        // wall / invis wall / socket / switchwall closed
         return;
       }
       if (oldtile > 0x15 && oldtile < 0x20)
@@ -159,14 +182,6 @@ public class CCLevel
             break;
         }
       }
-      if (oldtile == 0x0a)
-      {
-        // dirt
-        int[] futuredirt = map[newp.x + dx][newp.y + dy];
-        if (!(futuredirt[0] == 0x00 || futuredirt[0] == 0x03 ||
-              futuredirt[0] == 0x0b))
-          return;
-      }
 
       // remove ourself from old square
       oldchiploc[0] = 0;
@@ -205,28 +220,22 @@ public class CCLevel
           break;
         case 0x2f:
           // hint
-          showHint();
           newploc[1] = newploc[0];
-          break;
-        case 0x0a:
-          // movable dirt
-          int[] newloc = map[newp.x + dx][newp.y + dy];
-          if (newloc[0] == 0x00)
-          {
-            newloc[0] = 0x0a;
-          }
-          else if (newloc[0] == 0x0b)
-          {
-            newloc[0] = 0x0a;
-            newloc[1] = 0x0b;
-          }
-          else if (newloc[0] == 0x03)
-          {
-            newloc[0] = 0x0b;
-          }
           break;
         case 0x04:
           // fire
+          // until we figure out how to kill chip
+          newploc[1] = newploc[0];
+          break;
+        case 0x15:
+          // exit
+          GridChallengeRunner.startLevel(levelNumber + 1);
+          old.world.frame.dispose();
+          break;
+        case 0x22:
+          // socket
+        case 0x0b:
+          // dirt
           break;
         default:
           newploc[1] = newploc[0];
@@ -259,6 +268,16 @@ public class CCLevel
   {
     Point newpos = oldpos;
 
+    switch (id & 0xfc)
+    {
+      case 0x40:
+        // bug
+        return moveBug(oldpos, id & 0x03);
+      case 0x6c:
+        // chip -- this shouldn't happen but let's prevent it anyways
+        return oldpos;
+    }
+
     switch (id & 0x03)
     {
       case 0: // N
@@ -275,17 +294,90 @@ public class CCLevel
         break;
     }
 
-    if (map[newpos.x][newpos.y][0] != 0)
+    int[] newploc = map[newpos.x][newpos.y];
+    if (newploc[0] == 0)
+    {
+      // (don't) bubble up the thing the monster pushed down
+//    map[oldpos.x][oldpos.y][0] = map[oldpos.x][oldpos.y][1];
+//    map[oldpos.x][oldpos.y][1] = 0;
+
+      // move ourself to that square
+      map[oldpos.x][oldpos.y][0] = 0;
+      newploc[0] = id;
+      return newpos;
+    }
+//  else if (newploc[1] == 0)
+//  {
+//    // bubble up the thing the monster pushed down
+//    map[oldpos.x][oldpos.y][0] = map[oldpos.x][oldpos.y][1];
+//    map[oldpos.x][oldpos.y][1] = 0;
+
+//    newploc[1] = newploc[0];
+//    newploc[0] = id;
+//    return newpos;
+//  }
+    else
     {
       map[oldpos.x][oldpos.y][0] = id ^ 0x02; // 180 degree turn
       return oldpos;
     }
-    else
+  }
+
+  public Point moveBug(Point oldpos, int direction)
+  {
+    Point forward;
+    int count = 0;
+
+    do
     {
-      map[oldpos.x][oldpos.y][0] = 0;
-      map[newpos.x][newpos.y][0] = id;
-      return newpos;
+      forward = oldpos.add(direction);
+      direction = CCLevel.turnRight(direction);
+      if (++count > 5) return oldpos;
     }
+    while (whatsAt(forward, 0) != 0);
+
+    // correct for over-spinning earlier.
+    direction = CCLevel.turnLeft(direction);
+
+    // turn left if left of us will be open.
+    if (whatsAt(forward.add(CCLevel.turnLeft(direction)), 0) == 0 ||
+        (whatsAt(forward.add(CCLevel.turnLeft(direction)), 0) & 0xfc)
+        == 0x40)
+      direction = CCLevel.turnLeft(direction);
+
+    map[oldpos.x][oldpos.y][0] = 0;
+    map[forward.x][forward.y][0] = 0x40 | direction;
+
+    return forward;
+  }
+
+  public int whatsAt(Point where, int level)
+  {
+    return map[where.x][where.y][level];
+  }
+
+  public static int turnLeft(int dir)
+  {
+    return (dir + 1) % 4;
+  }
+
+  public static int turnRight(int dir)
+  {
+    return (dir + 3) % 4;
+  }
+
+  public static int dx(int dir)
+  {
+    if (dir == 1) return -1;
+    if (dir == 3) return 1;
+    return 0;
+  }
+
+  public static int dy(int dir)
+  {
+    if (dir == 0) return -1;
+    if (dir == 2) return 1;
+    return 0;
   }
 
   // private methods used during parsing

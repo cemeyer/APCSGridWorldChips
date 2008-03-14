@@ -8,4 +8,9 @@ public class Point
     this.x = x;
     this.y = y;
   }
+
+  public Point add(int dir)
+  {
+    return new Point(x + CCLevel.dx(dir), y + CCLevel.dy(dir));
+  }
 }

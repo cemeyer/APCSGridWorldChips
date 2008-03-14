@@ -19,6 +19,7 @@ public class CCWorld extends World<Actor>
   private int tickCounter = 0;
 
   private boolean gotoNextLevel = false;
+  public boolean godMode = false;
   private int levelTarget = 0;
 
   public CCLevel getLevel()
@@ -40,8 +41,6 @@ public class CCWorld extends World<Actor>
   public CCWorld(CCLevel level)
   {
     super(new BoundedGrid<Actor>(9, 9));
-
-    level.showHint();
 
     Grid<Actor> grid = getGrid();
 
@@ -67,7 +66,7 @@ public class CCWorld extends World<Actor>
         String tile = Tile.getNameForTile(level.getObjectAt(i, j, 0));
         if (tile.length() == 5 && tile.startsWith("Chip"))
         {
-          player = new CCPlayer(new Point(i, j));
+          player = new CCPlayer(new Point(i, j), this);
           breakFree = true;
           break;
         }
@@ -128,6 +127,25 @@ public class CCWorld extends World<Actor>
     super.step();
   }
 
+  public String getMessage()
+  {
+    try
+    {
+      String res = "Level " + level.getLevelNumber() + ": "
+        + level.getTitle();
+      if (level.getHint() != null) res += " -- Hint: " + level.getHint();
+      res += "\n" + player.numChips + "/" + level.getChipCount() +
+        " chips obtained. You have the following keys: ";
+      for (int i = 0; i < player.numGreen; i++) res += "G";
+      for (int i = 0; i < player.numBlue; i++) res += "B";
+      for (int i = 0; i < player.numRed; i++) res += "R";
+      for (int i = 0; i < player.numYellow; i++) res += "Y";
+      return res;
+    }
+    catch (Exception x) {}
+    return null;
+  }
+
   public boolean keyPressed(String desc, Location loc)
   {
     // Return true if we consume the keypress, false if GUI should
@@ -144,12 +162,24 @@ public class CCWorld extends World<Actor>
       gotoNextLevel = true;
       levelTarget = 0;
     }
+    else if (desc.equals("ctrl alt CLOSE_BRACKET"))
+    {
+      godMode = true;
+    }
     else if (desc.matches("^\\d$") && gotoNextLevel)
       levelTarget = (levelTarget * 10) + Integer.valueOf(desc);
-    else if (desc.equals("ENTER"))
+    else if (desc.equals("ENTER") && gotoNextLevel)
     {
-      GridChallengeRunner.startLevel(levelTarget);
-      this.frame.dispose();
+      if (levelTarget > 0 && levelTarget <= 150)
+      {
+        GridChallengeRunner.startLevel(levelTarget);
+        this.frame.dispose();
+      }
+      else levelTarget = 0;
+    }
+    else if (desc.equals("ctrl C"))
+    {
+      System.exit(0);
     }
     else
     {
