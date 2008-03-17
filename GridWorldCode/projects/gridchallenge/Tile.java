@@ -3,6 +3,7 @@ package gridchallenge;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.File;
+import java.util.HashMap;
 
 
 public class Tile
@@ -122,6 +123,8 @@ public class Tile
     "ChipS",
     "ChipE",        // 0x6f
   };
+  private static HashMap<String, BufferedImage> images =
+    new HashMap<String, BufferedImage>();
 
   public static String getNameForTile(int tile)
   {
@@ -132,17 +135,31 @@ public class Tile
   public static BufferedImage getImageForTile(int tile)
   {
     BufferedImage res = null;
-    String path = "/home/konrad/src/java/gridch/GridWorldCode/projects/gridchallenge/images/" +
-      getNameForTile(tile) + ".png";
+    String nameOfTile = getNameForTile(tile);
 
     try
     {
-      res = ImageIO.read(new File(path));
+      if (images.containsKey(nameOfTile))
+        return images.get(nameOfTile);
+      if (File.separatorChar == '/')
+      {
+        String path = "/home/konrad/src/java/gridch/GridWorldCode/projects/gridchallenge/images/" +
+          nameOfTile + ".png";
+        res = ImageIO.read(new File(path));
+      }
+      else if (File.separatorChar == '\\')
+      {
+        String path = "Z:/GridWorldCode/projects/gridchallenge/images/" +
+          nameOfTile + ".png";
+        res = ImageIO.read(new File(path));
+      }
+      images.put(nameOfTile, res);
     }
     catch (Exception x)
     {
       //System.out.println(x.getClass().getName() + ": " + x.getMessage());
       System.out.println("Need: " + getNameForTile(tile));
+      images.put(nameOfTile, null);
     }
     return res;
   }

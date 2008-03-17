@@ -26,8 +26,16 @@ public class GridChallengeRunner
         choice = "/CCLP2/CCLP2.dat";
       }
 
-      c = new CCLevelSet(System.getProperty("user.dir") +
-          "/gridchallenge" + choice);
+      try
+      {
+        c = new CCLevelSet(System.getProperty("user.dir") +
+            "/gridchallenge" + choice);
+      }
+      catch (RuntimeException rx)
+      {
+        c = new CCLevelSet("Z:\\GridWorldCode\\projects\\gridchallenge" +
+            choice.replace('/', '\\'));
+      }
 
       CCWorld world = new CCWorld(c.getLevel(1));
 
