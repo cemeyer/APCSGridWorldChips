@@ -9,6 +9,7 @@ import info.gridworld.gui.WorldFrame;
 
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
+import javax.swing.JFrame;
 
 public class CCWorld extends World<Actor>
 {
@@ -38,25 +39,9 @@ public class CCWorld extends World<Actor>
     return player.chip;
   }
 
-  public CCWorld(CCLevel level)
+  public void loadLevel(CCLevel level)
   {
-    super(new BoundedGrid<Actor>(9, 9));
-
-    Grid<Actor> grid = getGrid();
-
-    for (int i = 0; i < 9; i++)
-      for (int j = 0; j < 9; j++)
-        (new RenderTile(this)).putSelfInGrid(grid, new Location(i, j));
-
     this.level = level;
-    this.frame = new WorldFrame<Actor>(this);
-    this.frame.setVisible(true);
-    ((WorldFrame)this.frame).display.cellSize =
-      (((WorldFrame)this.frame).display.cellSize * 10) / 9;
-    ((WorldFrame)this.frame).control.run();
-    ((WorldFrame)this.frame).control.timer.setDelay(20);
-
-    //this.frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
     boolean breakFree = false;
     for (int i = 0; i < 32; i++)
@@ -73,6 +58,28 @@ public class CCWorld extends World<Actor>
       }
       if (breakFree) break;
     }
+  }
+
+  public CCWorld(CCLevel level)
+  {
+    super(new BoundedGrid<Actor>(9, 9));
+
+    Grid<Actor> grid = getGrid();
+
+    for (int i = 0; i < 9; i++)
+      for (int j = 0; j < 9; j++)
+        (new RenderTile(this)).putSelfInGrid(grid, new Location(i, j));
+
+    this.frame = new WorldFrame<Actor>(this);
+    this.frame.setVisible(true);
+//  ((WorldFrame)this.frame).display.cellSize =
+//    (((WorldFrame)this.frame).display.cellSize * 100) / 91;
+    ((WorldFrame)this.frame).control.run();
+    ((WorldFrame)this.frame).control.timer.setDelay(20);
+
+    this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    loadLevel(level);
   }
 
   public void step()
@@ -157,6 +164,10 @@ public class CCWorld extends World<Actor>
       action = Dir.UP;
     else if (desc.equals("DOWN"))
       action = Dir.DOWN;
+    else if (desc.equals("ctrl R"))
+    {
+      level.reloadLevel();
+    }
     else if (desc.equals("ctrl alt G"))
     {
       gotoNextLevel = true;
@@ -172,10 +183,9 @@ public class CCWorld extends World<Actor>
     {
       if (levelTarget > 0 && levelTarget <= 150)
       {
-        GridChallengeRunner.startLevel(levelTarget);
-        this.frame.dispose();
+        loadLevel(GridChallengeRunner.c.getLevel(levelTarget));
       }
-      else levelTarget = 0;
+      levelTarget = 0;
     }
     else if (desc.equals("ctrl C"))
     {
