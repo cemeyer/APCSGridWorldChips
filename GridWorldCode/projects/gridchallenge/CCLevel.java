@@ -3,6 +3,8 @@ package gridchallenge;
 import java.util.LinkedList;
 import java.util.HashMap;
 
+import javax.swing.JOptionPane;
+
 public class CCLevel
 {
   // pointer to next level
@@ -62,10 +64,11 @@ public class CCLevel
 
     this.leveldata = leveldata;
 
-    try { parseLevelData(); } catch(ArrayIndexOutOfBoundsException ex) {}
+    try { parseLevelData(); } catch (ArrayIndexOutOfBoundsException ex) {}
 
     // free after we're done with it.
-    this.leveldata = null;
+    // except not because we might want to reload it and the in-memory copy is modified
+    //this.leveldata = null;
   }
 
   public void moveChip(CCPlayer old, Point newp)
@@ -214,29 +217,55 @@ public class CCLevel
           // yellow key
           old.numYellow += 1;
           break;
+        case 0x68:
+          // flippers
+          old.flippers = true;
+          break;
+        case 0x69:
+          // fireboots
+          old.fireBoots = true;
+          break;
+        case 0x6a:
+          // iceskates
+          old.iceSkates = true;
+          break;
+        case 0x6b:
+          // suctionboots
+          old.suctionBoots = true;
+          break;
         case 0x02:
           // chip
           old.numChips += 1;
           break;
-        case 0x2f:
-          // hint
-          newploc[1] = newploc[0];
+        case 0x03:
+          // water
+          if (!old.flippers)
+          {
+            killChip("You drowned!", old);
+            value = newploc[0];
+          }
+          else newploc[1] = newploc[0];
           break;
         case 0x04:
           // fire
-          // until we figure out how to kill chip
-          newploc[1] = newploc[0];
+          if (!old.fireBoots)
+          {
+            killChip("You were burned alive in a fire!", old);
+            value = newploc[0]; // don't replace old fire with chip
+          }
+          else newploc[1] = newploc[0];
           break;
         case 0x15:
           // exit
-          GridChallengeRunner.startLevel(levelNumber + 1);
-          old.world.frame.dispose();
+          old.world.loadLevel(GridChallengeRunner.c.getLevel(levelNumber + 1));
           break;
         case 0x22:
           // socket
         case 0x0b:
           // dirt
           break;
+        case 0x2f:
+          // hint
         default:
           newploc[1] = newploc[0];
           break;
@@ -246,6 +275,20 @@ public class CCLevel
       newploc[0] = value;
       old.chip = newp;
     }
+  }
+
+  private void killChip(String why, CCPlayer old)
+  {
+    JOptionPane.showMessageDialog(null, why, "You died!",
+        JOptionPane.WARNING_MESSAGE);
+    reloadLevel();
+    old.world.loadLevel(this);
+  }
+
+  public void reloadLevel()
+  {
+    this.idx = 0;
+    try { parseLevelData(); } catch (ArrayIndexOutOfBoundsException ex) {}
   }
 
   public int direction(int dx, int dy)
