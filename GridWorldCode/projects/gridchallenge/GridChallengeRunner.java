@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 
 public class GridChallengeRunner
 {
-  private static CCLevelSet c;
+  public static CCLevelSet c;
 
   public static void main(String[] args){
     try
@@ -42,11 +42,5 @@ public class GridChallengeRunner
       world.show();
     }
     catch (IOException iox) {}
-  }
-
-  public static void startLevel(int level)
-  {
-    CCWorld world = new CCWorld(c.getLevel(level));
-    world.show();
   }
 }
