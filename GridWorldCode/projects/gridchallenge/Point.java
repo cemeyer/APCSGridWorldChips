@@ -13,4 +13,10 @@ public class Point
   {
     return new Point(x + CCLevel.dx(dir), y + CCLevel.dy(dir));
   }
+
+  public Point add(CCWorld.Dir dir)
+  {
+    return new Point(x + CCLevel.dx(dir.toDir()),
+        y + CCLevel.dy(dir.toDir()));
+  }
 }

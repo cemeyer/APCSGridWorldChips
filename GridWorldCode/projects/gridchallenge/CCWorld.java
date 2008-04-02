@@ -29,9 +29,21 @@ public class CCWorld extends World<Actor>
     return level;
   }
 
-  private enum Dir
+  public enum Dir
   {
     UP, LEFT, DOWN, RIGHT, NONE;
+
+    public int toDir()
+    {
+      switch (this)
+      {
+        case UP: return 0;
+        case DOWN: return 2;
+        case LEFT: return 1;
+        case RIGHT: return 3;
+      }
+      return 0;
+    }
   }
 
   public Point getChip()
@@ -83,6 +95,14 @@ public class CCWorld extends World<Actor>
     loadLevel(level);
   }
 
+  public Dir opposite(Dir in)
+  {
+    if (in == Dir.LEFT) return Dir.RIGHT;
+    if (in == Dir.RIGHT) return Dir.LEFT;
+    if (in == Dir.UP) return Dir.DOWN;
+    return Dir.UP;
+  }
+
   public void step()
   {
     final int cmf = 5;
@@ -99,7 +119,11 @@ public class CCWorld extends World<Actor>
         if (!player.iceSkates)
         {
           if (tickCounter % cmf == 0)
+          {
             action = lastAction;
+            if (level.whatsAt(player.chip.add(action), 0) == 0x01)
+              action = opposite(action);
+          }
           else action = Dir.NONE;
         }
         break;
