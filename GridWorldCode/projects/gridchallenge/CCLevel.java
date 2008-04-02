@@ -9,6 +9,7 @@ public class CCLevel
 {
   // pointer to next level
   private CCLevel next = null;
+  private CCPlayer lastPlayer = null;
   // x, y, layer
   private int[][][] map;
   // used for parsing during ctor; unused afterwards.
@@ -20,6 +21,8 @@ public class CCLevel
   private LinkedList<Point> movingMonsters = new LinkedList<Point>();
   private HashMap<Point, Point> trapControls = new HashMap<Point, Point>();
   private HashMap<Point, Point> cloneControls = new HashMap<Point, Point>();
+
+  enum TileType { ITEM, CREATURE, PLAYER, FLOOR, WALL; }
 
   // getters
   public int getObjectAt(int x, int y, int layer)
@@ -71,8 +74,23 @@ public class CCLevel
     //this.leveldata = null;
   }
 
+  private TileType typeOfTile(int tile)
+  {
+    // chips, keys, boots
+    if (tile == 0x02 || (tile >= 0x64 && tile <= 0x71)) return TileType.ITEM;
+    // chip the player
+    if (tile >= 0x72 && tile <= 75) return TileType.PLAYER;
+    // enemies
+    if (tile >= 0x40) return TileType.CREATURE;
+    // wall
+    if (tile == 0x01 || tile == 0x25) return TileType.WALL;
+    // floor
+    return TileType.FLOOR;
+  }
+
   public void moveChip(CCPlayer old, Point newp)
   {
+    lastPlayer = old;
     int[] oldchiploc = map[old.chip.x][old.chip.y];
     int[] newploc = map[newp.x][newp.y];
     int dx = newp.x - old.chip.x;
@@ -199,76 +217,94 @@ public class CCLevel
       int value = 0x6c | direction(dx, dy);
       
       // what have we stepped on?
-      switch (oldtile)
+      if (typeOfTile(oldtile) == TileType.CREATURE)
       {
-        case 0x64:
-          // blue key
-          old.numBlue += 1;
-          break;
-        case 0x65:
-          // red key
-          old.numRed += 1;
-          break;
-        case 0x66:
-          // green key
-          old.numGreen += 1;
-          break;
-        case 0x67:
-          // yellow key
-          old.numYellow += 1;
-          break;
-        case 0x68:
-          // flippers
-          old.flippers = true;
-          break;
-        case 0x69:
-          // fireboots
-          old.fireBoots = true;
-          break;
-        case 0x6a:
-          // iceskates
-          old.iceSkates = true;
-          break;
-        case 0x6b:
-          // suctionboots
-          old.suctionBoots = true;
-          break;
-        case 0x02:
-          // chip
-          old.numChips += 1;
-          break;
-        case 0x03:
-          // water
-          if (!old.flippers)
-          {
-            killChip("You drowned!", old);
-            value = newploc[0];
-          }
-          else newploc[1] = newploc[0];
-          break;
-        case 0x04:
-          // fire
-          if (!old.fireBoots)
-          {
-            killChip("You were burned alive in a fire!", old);
-            value = newploc[0]; // don't replace old fire with chip
-          }
-          else newploc[1] = newploc[0];
-          break;
-        case 0x15:
-          // exit
-          old.world.loadLevel(GridChallengeRunner.c.getLevel(levelNumber + 1));
-          break;
-        case 0x22:
-          // socket
-        case 0x0b:
-          // dirt
-          break;
-        case 0x2f:
-          // hint
-        default:
-          newploc[1] = newploc[0];
-          break;
+        killChip("You were killed by a creature!", old);
+        value = newploc[0];
+      }
+      else
+      {
+        switch (oldtile)
+        {
+          case 0x64:
+            // blue key
+            old.numBlue += 1;
+            break;
+          case 0x65:
+            // red key
+            old.numRed += 1;
+            break;
+          case 0x66:
+            // green key
+            old.numGreen += 1;
+            break;
+          case 0x67:
+            // yellow key
+            old.numYellow += 1;
+            break;
+          case 0x68:
+            // flippers
+            old.flippers = true;
+            break;
+          case 0x69:
+            // fireboots
+            old.fireBoots = true;
+            break;
+          case 0x6a:
+            // iceskates
+            old.iceSkates = true;
+            break;
+          case 0x6b:
+            // suctionboots
+            old.suctionBoots = true;
+            break;
+          case 0x23:
+            // green button
+            switchWalls();
+            newploc[1] = newploc[0];
+            break;
+          case 0x28:
+            // blue button
+            turnTanks();
+            newploc[1] = newploc[0];
+            break;
+          case 0x02:
+            // chip
+            old.numChips += 1;
+            break;
+          case 0x03:
+            // water
+            if (!old.flippers)
+            {
+              killChip("You drowned!", old);
+              value = newploc[0];
+            }
+            else newploc[1] = newploc[0];
+            break;
+          case 0x04:
+            // fire
+            if (!old.fireBoots)
+            {
+              killChip("You were burned alive in a fire!", old);
+              value = newploc[0]; // don't replace old fire with chip
+            }
+            else newploc[1] = newploc[0];
+            break;
+          case 0x15:
+            // exit
+            old.world.loadLevel(GridChallengeRunner.c.getLevel(levelNumber + 1));
+            break;
+          case 0x22:
+            // socket
+          case 0x0b:
+            // dirt
+            break;
+          case 0x2f:
+            // hint
+          default:
+            newploc[1] = newploc[0];
+            break;
+        }
       }
 
       // put ourself into the new square
@@ -277,7 +313,7 @@ public class CCLevel
     }
   }
 
-  private void killChip(String why, CCPlayer old)
+  public void killChip(String why, CCPlayer old)
   {
     JOptionPane.showMessageDialog(null, why, "You died!",
         JOptionPane.WARNING_MESSAGE);
@@ -285,7 +321,23 @@ public class CCLevel
     old.world.loadLevel(this);
   }
 
-  public void reloadLevel()
+  public void switchWalls()
+  {
+    for (int[][] col : map)
+      for (int[] row : col)
+        if (row[0] == 0x25 || row[0] == 0x26)
+          row[0] ^= 0x03;
+  }
+
+  public void turnTanks()
+  {
+    for (int[][] col : map)
+      for (int[] row : col)
+        if ((row[0] & 0xfc) == 0x4c)
+          row[0] ^= 0x02;
+  }
+
+  private void reloadLevel()
   {
     this.idx = 0;
     try { parseLevelData(); } catch (ArrayIndexOutOfBoundsException ex) {}
@@ -316,6 +368,9 @@ public class CCLevel
       case 0x40:
         // bug
         return moveBug(oldpos, id & 0x03);
+      case 0x4c:
+        // tank
+        return moveTank(oldpos, id & 0x03);
       case 0x6c:
         // chip -- this shouldn't happen but let's prevent it anyways
         return oldpos;
@@ -366,6 +421,24 @@ public class CCLevel
     }
   }
 
+  public Point moveTank(Point oldpos, int dir)
+  {
+    Point forward = oldpos.add(dir);
+    switch (typeOfTile(whatsAt(forward, 0)))
+    {
+      case PLAYER:
+        killChip("You got pwned by a tank!", lastPlayer);
+        return oldpos;
+      case ITEM:
+      case FLOOR:
+        map[forward.x][forward.y][1] = map[forward.x][forward.y][0];
+        map[forward.x][forward.y][0] = 0x4c | dir;
+        map[oldpos.x][oldpos.y][0] = map[oldpos.x][oldpos.y][1];
+        return forward;
+    }
+    return oldpos;
+  }
+
   public Point moveBug(Point oldpos, int direction)
   {
     Point forward;
@@ -396,7 +469,7 @@ public class CCLevel
 
   public int whatsAt(Point where, int level)
   {
-    return map[where.x][where.y][level];
+    return getObjectAt(where.x, where.y, level);
   }
 
   public static int turnLeft(int dir)
@@ -426,11 +499,9 @@ public class CCLevel
   // private methods used during parsing
   private void parseLevelData() throws ArrayIndexOutOfBoundsException
   {
-    final boolean debug = false;
     levelNumber = readInt16();
     timeLimit   = readInt16();
     numChips    = readInt16();
-    if (debug) System.out.println("Read: 6 bytes");
 
     boolean breakFree = false;
     for (;;)
@@ -440,7 +511,6 @@ public class CCLevel
       switch (field)
       {
         case 1:
-          if (debug) System.out.println("Field 1:");
           int sizeFirstLayer = readInt16();
           int[] firstlayer = readInts8(sizeFirstLayer);
 
@@ -451,45 +521,31 @@ public class CCLevel
           copyLayerIntoMap(1, secondlayer);
 
           int bytesRemaining = readInt16();
-          if (debug) System.out.println("  Read: " + (8 + sizeFirstLayer + sizeSecondLayer) + " bytes");
           break;
         case 3:
-          if (debug) System.out.println("Field 3:");
           title = readString(len);
-          if (debug) System.out.println("  Title: " + title);
-          if (debug) System.out.println("  Read: " + (2 + len) + " bytes");
           break;
         case 4:
-          if (debug) System.out.println("Field 4:");
           int[] trapcontrols = readInts8(len);
           handleTrapControls(trapcontrols);
           break;
         case 5:
-          if (debug) System.out.println("Field 5:");
           int[] cloningcontrols = readInts8(len);
           handleCloningControls(cloningcontrols);
           break;
         case 6:
-          if (debug) System.out.println("Field 6:");
           password = convertPassword(readString(len));
-          if (debug) System.out.println("  Password: " + password);
-          if (debug) System.out.println("  Read: " + (2 + len) + " bytes");
           break;
         case 7:
-          if (debug) System.out.println("Field 7:");
           hint = readString(len);
-          if (debug) System.out.println("  Hint: " + hint);
-          if (debug) System.out.println("  Read: " + (2 + len) + " bytes");
           break;
         case 10:
-          if (debug) System.out.println("Field 10:");
           // monster motion
           for (int m = 0; m < len; m += 2)
           {
             int x = readInt8();
             int y = readInt8();
             movingMonsters.add(new Point(x, y));
-            if (debug) System.out.println("  Monster: " + x + ", " + y);
           }
           break;
         default:

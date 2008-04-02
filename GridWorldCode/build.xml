@@ -42,6 +42,7 @@
       <copy todir="${build.dir}">
          <fileset dir="${framework.dir}">
             <include name="**/*.gif"/>
+            <include name="**/*.png"/>
             <include name="**/*.properties"/>
             <include name="**/*.html"/>
          </fileset>
@@ -62,8 +63,7 @@
    <target name="make-zip" depends="javadoc">
       <copy todir="${dist.zip.dir}/projects">
          <fileset dir="${projects.dir}">
-            <include name="**/*.java"/>
-            <include name="**/*.gif"/>
+            <include name="**/*"/>
          </fileset>
       </copy>
       <copy todir="${dist.zip.dir}/framework">      

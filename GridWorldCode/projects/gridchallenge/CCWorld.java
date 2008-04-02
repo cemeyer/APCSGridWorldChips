@@ -16,6 +16,7 @@ public class CCWorld extends World<Actor>
   private CCPlayer player;
 
   private Dir action = Dir.NONE;
+  private Dir lastAction = Dir.NONE;
   private CCLevel level;
   private int tickCounter = 0;
 
@@ -84,11 +85,112 @@ public class CCWorld extends World<Actor>
 
   public void step()
   {
+    final int cmf = 5;
     Grid<Actor> grid = getGrid();
     for (Location loc : grid.getOccupiedLocations())
     {
       Actor a = grid.get(loc);
       a.act();  // paint yourselves.
+    }
+    switch (level.getObjectAt(player.chip.x, player.chip.y, 1))
+    {
+      case 0x0c:
+        // ice
+        if (!player.iceSkates)
+        {
+          if (tickCounter % cmf == 0)
+            action = lastAction;
+          else action = Dir.NONE;
+        }
+        break;
+      case 0x1a:
+        // south east ice
+        if (!player.iceSkates)
+        {
+          if (tickCounter % cmf == 0)
+          {
+            if (lastAction == Dir.UP) action = Dir.RIGHT;
+            else action = Dir.DOWN;
+          }
+          else action = Dir.NONE;
+        }
+        break;
+      case 0x1b:
+        // south west ice
+        if (!player.iceSkates)
+        {
+          if (tickCounter % cmf == 0)
+          {
+            if (lastAction == Dir.UP) action = Dir.LEFT;
+            else action = Dir.DOWN;
+          }
+          else action = Dir.NONE;
+        }
+        break;
+      case 0x1c:
+        // north west ice
+        if (!player.iceSkates)
+        {
+          if (tickCounter % cmf == 0)
+          {
+            if (lastAction == Dir.DOWN) action = Dir.LEFT;
+            else action = Dir.UP;
+          }
+          else action = Dir.NONE;
+        }
+        break;
+      case 0x1d:
+        // north east ice
+        if (!player.iceSkates)
+        {
+          if (tickCounter % cmf == 0)
+          {
+            if (lastAction == Dir.DOWN) action = Dir.RIGHT;
+            else action = Dir.UP;
+          }
+          else action = Dir.NONE;
+        }
+        break;
+      case 0x0d:
+        // force floor south
+        if (!player.suctionBoots)
+        {
+          if (tickCounter % cmf == 0)
+            action = Dir.DOWN;
+          else if (action == Dir.UP)
+            action = Dir.NONE;
+        }
+        break;
+      case 0x12:
+        // force floor north
+        if (!player.suctionBoots)
+        {
+          if (tickCounter % cmf == 0)
+            action = Dir.UP;
+          else if (action == Dir.DOWN)
+            action = Dir.NONE;
+        }
+        break;
+      case 0x13:
+        // force floor east
+        if (!player.suctionBoots)
+        {
+          if (tickCounter % cmf == 0)
+            action = Dir.RIGHT;
+          else if (action == Dir.LEFT)
+            action = Dir.NONE;
+        }
+        break;
+      case 0x14:
+        // force floor west
+        if (!player.suctionBoots)
+        {
+          if (tickCounter % cmf == 0)
+            action = Dir.LEFT;
+          else if (action == Dir.RIGHT)
+            action = Dir.NONE;
+        }
+        break;
     }
     switch(action)
     {
@@ -112,10 +214,14 @@ public class CCWorld extends World<Actor>
         // do nothing
         break;
     }
-    action = Dir.NONE;
+    if (action != Dir.NONE)
+    {
+      lastAction = action;
+      action = Dir.NONE;
+    }
 
     tickCounter++;
-    if (tickCounter >= 15)
+    if (tickCounter % 15 == 0)
     {
       LinkedList<Point> monsters = level.getMonsterLocations();
       LinkedList<Point> newmonsters = new LinkedList<Point>();
@@ -128,7 +234,6 @@ public class CCWorld extends World<Actor>
         if (n != null) newmonsters.add(n);
       }
       level.setMonsterLocations(newmonsters);
-      tickCounter = 0;
     }
 
     super.step();
@@ -166,7 +271,7 @@ public class CCWorld extends World<Actor>
       action = Dir.DOWN;
     else if (desc.equals("ctrl R"))
     {
-      level.reloadLevel();
+      level.killChip("Player Requested", player);
     }
     else if (desc.equals("ctrl alt G"))
     {
